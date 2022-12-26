@@ -1,0 +1,24 @@
+.promo {
+    background: linear-gradient(0deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('../../assets/bg.jpg') center center / cover no-repeat;
+    min-height: 650px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 140px;
+    &__wrapper {
+        display: flex;
+        flex-direction: column;
+        color: #fff;
+        max-width: 380px;
+        h1 {
+            margin-bottom: 21px;
+        }
+        p {
+            margin-bottom: 32px;
+        }
+        button {
+            align-self: center;
+
+        }
+    }
+}

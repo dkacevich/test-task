@@ -1,0 +1,61 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+#root {
+
+  text-align: center;
+
+  .app-container {
+    max-width: 1200px;
+    padding: 0 15px;
+    margin: 0 auto;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Nunito', sans-serif;
+  font-size: 16px;
+  background: theme('colors.gray');
+}
+
+
+@layer base {
+  h1 {
+    font-size: 40px;
+    line-height: 1;
+  }
+
+  p {
+    font-size: 16px;
+    line-height: calc(26 / 16);
+  }
+}
+
+
+@layer components {
+  .button {
+    background: theme('colors.yellow');
+    border-radius: 80px;
+    padding: 4px 23px;
+    font-size: 16px;
+    line-height: 26px;
+    color: rgba(0, 0, 0, 0.87);
+    transition: all .2s ease;
+
+    &:hover {
+      background: #FFE302;
+    }
+
+    &:disabled {
+      color: #fff;
+      background: #B4B4B4;
+    }
+  }
+}
