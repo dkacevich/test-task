@@ -1,17 +1,14 @@
 import './Card.scss'
-import photo from './../../assets/user.svg'
 
-
-
-const Card = () => {
+const Card = ({email, name, phone, photo, position, position_id}) => {
     return (
         <div className='card'>
             <img src={photo} alt=""/>
-            <div className="card__name">Salvador Stewart Flynn Thomas...</div>
+            <div className="card__name">{name}</div>
            <p>
-               <div className="card__position">Frontend Developer Frontend ...</div>
-               <a href='' className="card__mail">frontend_develop@gmail.com</a>
-               <a href='' className="card__phone">+38 (098) 278 44 24</a>
+               <span className="card__position">{position}</span>
+               <a href='' className="card__mail">{email}</a>
+               <a href='' className="card__phone">{phone}</a>
            </p>
         </div>
     )
