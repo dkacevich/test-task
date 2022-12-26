@@ -1,11 +1,11 @@
-import './GetRequests.scss'
-import Card from './../Card/Card';
+import './Team.scss'
+import Card from '../Card/Card';
 
-const GetRequests = () => {
+const Team = () => {
   return (
-    <div className='getrequests'>
+    <div className='team'>
         <h1>Working with GET request</h1>
-        <div className="getrequests__grid">
+        <div className="team__grid">
             <Card/>
             <Card/>
             <Card/>
@@ -18,4 +18,4 @@ const GetRequests = () => {
   )
 }
 
-export default GetRequests
+export default Team
