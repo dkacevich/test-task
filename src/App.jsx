@@ -6,22 +6,19 @@ import Preloader from './components/Preloader/Preloader';
 
 import './App.scss'
 
-import { QueryClient, QueryClientProvider } from 'react-query'
-
-const queryClient = new QueryClient()
 
 
 const App = () => {
 
     return (
-        <QueryClientProvider client={queryClient}>
+        <>
             <Header />
             <div className="app-container">
                 <Promo />
                 <Team />
                 <Form/>
             </div>
-        </QueryClientProvider>
+        </>
     )
 }
 

@@ -1,35 +1,30 @@
 import './Team.scss'
 import Card from '../Card/Card';
-
-import { useQuery } from 'react-query'
+import { useInfiniteQuery, useQuery } from 'react-query'
 import { fetchUsers } from './../../services/serviceAPI';
 import Preloader from '../Preloader/Preloader';
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 const Team = () => {
-	const [page, setPage] = useState(7)
-	const [users, setUsers] = useState([])
-	const { isLoading, isFetching, error, data } = useQuery(['users', page], () => fetchUsers(page), {
-		keepPreviousData: true,
-		onSuccess: (data) => {
-			if (data !== users) setUsers(users => [...users, ...data.users])
-		},
-		select: ({data}) => data
-	})
+	const { hasNextPage, isFetching, fetchNextPage, isFetchingNextPage, error, data, status } = useInfiniteQuery(
+		['users'],
+		fetchUsers,
+		{ getNextPageParam: (lastPage) => lastPage.data.links.next_url }
+	)
 
-	if (isLoading | isFetching) return <Preloader/>
+	if (status === 'loading') return <Preloader />
+	if (status === 'error') return `Error: ${error.message}`
 
 
-	const prefetchUsers = () => {
-		setPage(state => state + 1)
-	}
+	const usersCards = data.pages.map((group, i) => (
+		<React.Fragment key={i}>
+			{group.data.users.map(({ id, ...userProps }) => (
+				<Card key={id} {...userProps} id={id} />
+			))}
+		</React.Fragment>
+	))
 
 
-	const usersCards = users.map(({id, ...userProps}) => {
-		return <Card key={id} {...userProps}/>
-	})
-
-	console.log('render');
 	return (
 		<div className='team'>
 			<h1>Working with GET request</h1>
@@ -37,8 +32,9 @@ const Team = () => {
 				{usersCards}
 			</div>
 			{
-				Math.ceil(data.total_users / 6) > page && <button onClick={prefetchUsers} className="button">Show more</button>
+				(isFetching | isFetchingNextPage) ? <Preloader /> : (hasNextPage ? <button disabled={isFetchingNextPage} onClick={() => fetchNextPage()} className="button">Show more</button> : null)
 			}
+
 		</div>
 	)
 }

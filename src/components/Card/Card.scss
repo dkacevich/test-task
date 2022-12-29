@@ -7,14 +7,33 @@
 	gap: 20px;
 
 	background: #FFFFFF;
-	
+
+	* {
+		max-width: 100%;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
 
 	img {
 		width: 70px;
 		height: 70px;
+		border-radius: 50%;
 	}
 
-	a {
+	div,span {
+		cursor: pointer;
+	}
+
+	span {
 		display: block;
 	}
+}
+
+.card-tooltip {
+	margin-left: 80px;
+	background: theme('colors.black');
+	border-radius: 4px;
+	padding: 3px 16px;
 }
