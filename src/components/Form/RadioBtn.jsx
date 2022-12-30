@@ -1,10 +1,9 @@
 import './Form.scss'
 
-const RadioBtn = ({label, checked, onChange}) => {
+const RadioBtn = ({id, label, register}) => {
     return (
         <label className='radio-btn'>
-            {/* <input type='radio' name={category} checked={checked}/> */}
-            <input onChange={onChange} type='radio' name='position' checked={checked}/>
+            <input type='radio' value={id} {...register('position_id')}/>
             <div className='radio-text'>{label}</div>
         </label>
     )
