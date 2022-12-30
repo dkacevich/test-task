@@ -1,10 +1,9 @@
-import { useForm } from 'react-hook-form';
-import { useQuery } from 'react-query';
-import { fetchPositions } from '../../services/serviceAPI';
-import { yupResolver } from '@hookform/resolvers/yup';
+import {useForm} from 'react-hook-form';
+import {useQuery} from 'react-query';
+import {fetchPositions} from '../../services/serviceAPI';
+import {yupResolver} from '@hookform/resolvers/yup';
 import * as yup from "yup";
-import { useState } from 'react'
-
+import {useState} from 'react'
 
 
 import Preloader from '../Preloader/Preloader';
@@ -13,35 +12,34 @@ import RadioBtn from './RadioBtn';
 import './Form.scss'
 
 
-const schema = yup.object({
-    name: yup.string()
-        .required('This field is required')
-        .min(2, 'Username should contain 2-60 characters')
-        .max(60, 'Username should contain 2-60 characters'),
-
-    email: yup.string()
-        .required('This field is required')
-        .email('Write correct email'),
-
-    phone: yup.string()
-        .required('This field is required')
-        .matches(/^[\+]{0,1}380([0-9]{9})$/, 'Type correct phone number'),
-
-    position_id: yup.number().required('This field is required'),
+const schema = yup.object().shape({
+    // name: yup.string()
+    //     .required('This field is required')
+    //     .min(2, 'Username should contain 2-60 characters')
+    //     .max(60, 'Username should contain 2-60 characters'),
+    //
+    // email: yup.string()
+    //     .required('This field is required')
+    //     .email('Write correct email'),
+    //
+    // phone: yup.string()
+    //     .required('This field is required')
+    //     .matches(/^[\+]{0,1}380([0-9]{9})$/, 'Type correct UA phone number'),
+    //
+    // position_id: yup.number().required('This field is required'),
 
     photo: yup.mixed()
-        .test('required', 'Your photo is required', (file) => {
-            return file && file[0]?.size
+        .test('required', "You need to provide a file", (value) => {
+            return value && value.length
         })
-        .test('size', 'Photo must not be greater then 5 Mb', (file) => {
-            return file && file[0]?.size / 10 ^ 6 <= 5
+        .test("fileSize", "The file is too large", (value, context) => {
+            return value && value[0] && value[0].size <= 200000;
         })
-        .test('type', 'We only support jpg/jpeg formats', (file) => {
-            return file && file[0]?.type === 'image/jpeg'
+        .test("type", "We only support jpeg", function (value) {
+            return value && value[0] && value[0].type === "image/jpeg";
         })
-        .test('resolution', 'Photo must not be greater then 70x70 px', (file) => {
-
-            if (file[0]) {
+        .test('resolution', 'Photo must not be greater then 70x70 px', (file, context) => {
+            if (file && file[0]?.type === 'image/jpeg' && file[0]?.size <= 500000) {
                 const getHeightAndWidthFromDataUrl = dataURL => new Promise(resolve => {
                     const img = new Image()
                     img.onload = () => {
@@ -52,28 +50,24 @@ const schema = yup.object({
                     }
                     img.src = dataURL
                 })
-
                 const fileAsDataURL = window.URL.createObjectURL(file[0])
-
-                return async () => {
-                    const {width, height} = await getHeightAndWidthFromDataUrl(fileAsDataURL)
+                getHeightAndWidthFromDataUrl(fileAsDataURL).then(({width, height}) => {
                     return width < 70 && height < 70
-                }
-
+                })
             }
         })
 
 
-}).required();
+});
 
 
 const Form = () => {
 
-    const { data, isLoading, isError, error } = useQuery(
+    const {data, isLoading, isError, error} = useQuery(
         'positions',
         fetchPositions,
         {
-            select: ({ data }) => data
+            select: ({data}) => data
         }
     )
 
@@ -83,23 +77,24 @@ const Form = () => {
         setError,
         trigger,
         control,
+        clearErrors,
         formState,
-        formState: { errors },
+        formState: {errors},
     } = useForm({
         defaultValues: {
             position_id: '1',
         },
         resolver: yupResolver(schema),
-        reValidateMode: 'onBlur',
+        // reValidateMode: 'onBlur',
         mode: 'onBlur',
     });
 
 
-    if (isLoading) return <Preloader />
+    if (isLoading) return <Preloader/>
     if (isError) return `Error: ${error.message}`
 
 
-    const positionRadio = data.positions.map(({ id, name }) => {
+    const positionRadio = data.positions.map(({id, name}) => {
         return (
             <RadioBtn
                 key={id}
@@ -120,9 +115,9 @@ const Form = () => {
             >
                 <div className="form__inputs">
 
-                    <Input {...{ trigger, register }} placeholder='Your name' name='name' error={errors.name} />
-                    <Input {...{ trigger, register }} placeholder='Email' name='email' error={errors.email} />
-                    <Input {...{ trigger, register }} placeholder='Phone' name='phone' error={errors.phone}>
+                    <Input {...{trigger, register}} placeholder='Your name' name='name' error={errors.name}/>
+                    <Input {...{trigger, register}} placeholder='Email' name='email' error={errors.email}/>
+                    <Input {...{trigger, register}} placeholder='Phone' name='phone' error={errors.phone}>
                         <span className="form__phone-mockup">+38 (XXX) XXX - XX - XX</span>
                     </Input>
 
@@ -132,7 +127,7 @@ const Form = () => {
                     {positionRadio}
                 </div>
 
-                <PhotoInput {...{ register, trigger, formState }} error={errors.photo} />
+                <PhotoInput {...{register, trigger, formState, setError, clearErrors}} error={errors.photo}/>
 
                 <button className="button">Submit</button>
             </form>
@@ -140,7 +135,7 @@ const Form = () => {
     )
 }
 
-const Input = ({ trigger, register, error, name, placeholder, children }) => {
+const Input = ({trigger, register, error, name, placeholder, children}) => {
     return (
         <div className="form__input">
             <input placeholder={placeholder} {...register(name, {
@@ -156,23 +151,12 @@ const Input = ({ trigger, register, error, name, placeholder, children }) => {
 }
 
 
-
-const PhotoInput = ({ register, error, trigger, formState }) => {
+const PhotoInput = ({register, error, setError, trigger, clearErrors}) => {
 
     const [photoName, setPhotoName] = useState('Upload your photo')
 
-    const putPhoto = (e) => {
+    const putPhoto = (file) => {
 
-        if (typeof (error) === 'undefined') {
-            const file = e.target.files[0]
-            debugger
-            setPhotoName('loaderd')
-            // debugger
-            // setError('photo', { type: 'largeSize', message: 'Photo size must be not greater then 5 Mb' })
-            // const formData = new FormData();
-            // formData.append('image', e.target.files[0])
-            // fetchPhoto(formData)
-        }
     }
 
 
@@ -182,11 +166,9 @@ const PhotoInput = ({ register, error, trigger, formState }) => {
                 <span>Upload</span>
                 <input type="file" {...register('photo', {
                     onChange: (e) => {
-                        console.log(formState)
-                        putPhoto(e)
                         // trigger('photo')
+                        clearErrors('photo')
                     },
-                    oninput
                 })} />
                 <div>{photoName}</div>
             </label>
@@ -195,7 +177,6 @@ const PhotoInput = ({ register, error, trigger, formState }) => {
 
     )
 }
-
 
 
 export default Form
