@@ -14,7 +14,6 @@ import Input from './Input';
 import SuccsessReg from './Success';
 
 import './Form.scss'
-import { DevTool } from '@hookform/devtools';
 
 
 // Validation schema
@@ -106,7 +105,7 @@ const Form = () => {
 
 
     // React Hook Form 
-    const { reset, register, handleSubmit, trigger, control, setError, clearErrors, formState: { errors, isValid, isDirty } } = useForm({
+    const { reset, register, handleSubmit, trigger, setError, clearErrors, formState: { errors, isValid, isDirty } } = useForm({
         defaultValues: {
             position_id: '1',
         },
@@ -181,7 +180,6 @@ const Form = () => {
             <h1>Working with POST request</h1>
             {registerIsError && <div className="mt-3">{registerError.response.data.message}</div>}
             {Content}
-            <DevTool control={control}/>
         </div>
     )
 }
