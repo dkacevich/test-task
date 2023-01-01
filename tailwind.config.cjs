@@ -9,7 +9,8 @@ module.exports = {
       'yellow': '#F4E041',
       'blue': '#00BDD3',
       'gray': '#F8F8F8',
-      'black': 'rgba(0, 0, 0, 0.87)'
+      'black': 'rgba(0, 0, 0, 0.87)',
+      'red': '#CB3D40'
     },
   },
   plugins: [],

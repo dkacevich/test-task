@@ -15,6 +15,7 @@
     &__input {
         display: flex;
         flex-direction: column;
+        position: relative;
 
         &:not(:last-child) {
             margin-bottom: 50px;
@@ -23,6 +24,35 @@
         &:last-child {
             margin-bottom: 25px;
         }
+
+        .input-error-label {
+            position: absolute;
+            top: 20px;
+            left: 13px;
+
+            padding: 0 4px;
+            opacity: 0;
+            color: #7E7E7E;
+
+            font-weight: 500;
+            font-size: 16px;
+            line-height: 14px;
+        }
+
+        &.error {
+            input {
+                border: 1px solid red;
+            }
+
+            .input-error-label {
+                opacity: 1;
+                background: #f8f8f8;
+                font-size: 12px;
+                top: -6px;
+                left: 14px;
+            }
+        }
+
 
         input {
             padding: 14px 16px;
@@ -35,9 +65,11 @@
                 color: #7E7E7E;
             }
         }
+
+       
     }
 
-    &__phone-mockup {
+    .helper-text {
         font-size: 12px;
         line-height: 14px;
         color: #7E7E7E;
@@ -62,16 +94,21 @@
     }
 
     &__input-file {
-        cursor: pointer;
-        border-radius: 4px;
-        display: flex;
         margin-top: 47px;
         margin-bottom: 50px;
+
+        label {
+            cursor: pointer;
+            border-radius: 4px;
+            display: flex;
+        }
 
         span {
             border: 1px solid rgba(0, 0, 0, 0.87);
             border-radius: 4px 0px 0px 4px;
             padding: 14px 15px;
+            display: flex;
+            align-items: center;
         }
 
         div {
@@ -81,6 +118,10 @@
             color: #7E7E7E;
             flex: 1 1 auto;
             text-align: left;
+
+            &.active-name {
+                color: theme('colors.black')
+            }
         }
 
         input {
@@ -89,6 +130,26 @@
             position: absolute;
             opacity: 0;
         }
+
+        &.error {
+            div,
+            span {
+                border: 1px solid theme('colors.red');
+            }
+            div {
+                border-left: none;
+            }
+        }
+    }
+
+    .error-text {
+        display: flex;
+        margin-left: 16px;
+        margin-top: 4px;
+
+        font-size: 12px;
+        line-height: 14px;
+        color: theme('colors.red');
     }
 
     .button {
