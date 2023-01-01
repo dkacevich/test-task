@@ -10,6 +10,12 @@
     align-items: center;
     gap: 10px;
     padding: 13px 60px;
+    @media (max-width: 768px){
+        padding: 13px 32px;
+    }
+    @media (max-width: 360px){
+        padding: 13px 16px;
+    }
     
 
     div {

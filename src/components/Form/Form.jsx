@@ -1,68 +1,75 @@
-import { useForm } from 'react-hook-form';
-import { useMutation, useQuery } from 'react-query';
-import { fetchPositions, registerUser } from '../../services/serviceAPI';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from "yup";
-import { useEffect, useRef, useState } from 'react'
-import success from './../../assets/success.svg'
-import { DevTool } from "@hookform/devtools";
+
+import { useForm } from 'react-hook-form';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
+
+import { fetchPositions, registerUser, getToken } from '../../services/serviceAPI';
 
 
 import Preloader from '../Preloader/Preloader';
 import RadioBtn from './RadioBtn';
+import PhotoInput from './PhotoInput';
+import Input from './Input';
+import SuccsessReg from './Success';
 
 import './Form.scss'
-import { getToken } from './../../services/serviceAPI';
 
 
+// Validation schema
+
+// There is only one issue
+// I can't correct check if photo has at least 70x70 px
+// Below is code where I tried
 
 const getSchema = () => yup.object({
-    // name: yup.string()
-    //     .required('This field is required')
-    //     .min(2, 'Username should contain 2-60 characters')
-    //     .max(60, 'Username should contain 2-60 characters'),
+    
+    name: yup.string()
+        .required('This field is required')
+        .min(2, 'Username should contain 2-60 characters')
+        .max(60, 'Username should contain 2-60 characters'),
 
-    // email: yup.string()
-    //     .required('This field is required')
-    //     .email('Write correct email'),
+    email: yup.string()
+        .required('This field is required')
+        .email('Write correct email'),
 
-    // phone: yup.string()
-    //     .required('This field is required')
-    //     .matches(/^[\+]{0,1}380([0-9]{9})$/, 'Type correct UA phone number'),
+    phone: yup.string()
+        .required('This field is required')
+        .matches(/^[\+]{0,1}380([0-9]{9})$/, 'Type correct UA phone number'),
 
-    // position_id: yup.number().required('This field is required'),
+    position_id: yup.number().required('This field is required'),
 
-    // photo: yup.mixed()
-    //     // .test('resolution', 'Photo must be at least 70x70 px', (file, context) => {
-    //     //     if (file && file[0]?.type === 'image/jpeg' && file[0]?.size <= 5 * 1024 * 1024) {
-    //     //         const getHeightAndWidthFromDataUrl = dataURL => new Promise(resolve => {
-    //     //             const img = new Image()
-    //     //             img.onload = () => {
-    //     //                 resolve({
-    //     //                     height: img.height,
-    //     //                     width: img.width
-    //     //                 })
-    //     //             }
-    //     //             img.src = dataURL
-    //     //         })
-    //     //         const fileAsDataURL = window.URL.createObjectURL(file[0])
-    //     //         getHeightAndWidthFromDataUrl(fileAsDataURL).then(({ width, height }) => {
-    //     //             if (width > 70 && height > 70) {
-    //     //                 return true
-    //     //             }
-    //     //             else return false
-    //     //         })
-    //     //     }
-    //     // })
-    //     .test('required', "You need to provide a file", (value) => {
-    //         return value && value.length
-    //     })
-    //     .test("fileSize", "The file is too large", (value, context) => {
-    //         return value && value[0] && value[0].size <= 5 * 1024 * 1024;
-    //     })
-    //     .test("type", "We only support jpeg", function (value) {
-    //         return value && value[0] && value[0].type === "image/jpeg";
-    //     })
+    photo: yup.mixed()
+        // .test('resolution', 'Photo must be at least 70x70 px', (file, context) => {
+        //     if (file && file[0]?.type === 'image/jpeg' && file[0]?.size <= 5 * 1024 * 1024) {
+        //         const getHeightAndWidthFromDataUrl = dataURL => new Promise(resolve => {
+        //             const img = new Image()
+        //             img.onload = () => {
+        //                 resolve({
+        //                     height: img.height,
+        //                     width: img.width
+        //                 })
+        //             }
+        //             img.src = dataURL
+        //         })
+        //         const fileAsDataURL = window.URL.createObjectURL(file[0])
+        //         getHeightAndWidthFromDataUrl(fileAsDataURL).then(({ width, height }) => {
+        //             if (width > 70 && height > 70) {
+        //                 return true
+        //             }
+        //             else return false
+        //         })
+        //     }
+        // })
+        .test('required', "You need to provide a file", (value) => {
+            return value && value.length
+        })
+        .test("fileSize", "The file is too large", (value, context) => {
+            return value && value[0] && value[0].size <= 5 * 1024 * 1024;
+        })
+        .test("type", "We only support jpeg", function (value) {
+            return value && value[0] && value[0].type === "image/jpeg";
+        })
 
 
 
@@ -70,38 +77,55 @@ const getSchema = () => yup.object({
 
 
 
+
 const Form = () => {
 
+    const queryClient = useQueryClient()
 
-
+    // Position Query
     const { data, isLoading: positionLoading, isError: positionError, error } = useQuery('positions', fetchPositions, { select: ({ data }) => data })
+    
+    // Token Query
     const { refetch: refetchToken } = useQuery('token', getToken, { select: ({ data }) => data, enabled: false })
 
+
+    // Register user Mutation
     const {
         isSuccess: registerIsSuccess,
         isLoading: registerIsLoading,
         isError: registerIsError,
         error: registerError,
         mutate
-    } = useMutation({ mutationFn: ({ formData: data, token }) => registerUser({ data, token }) })
+    } = useMutation({
+        mutationFn: ({ formData: data, token }) => registerUser({ data, token }),
+        onSuccess: () => {
+            queryClient.resetQueries({ queryKey: ['users'] })
+        }
+    })
 
-    const { register, handleSubmit, trigger, control, setError, clearErrors, formState: { errors } } = useForm({
+
+    // React Hook Form 
+    const { reset, isValid, register, handleSubmit, trigger, control, setError, clearErrors, formState: { errors } } = useForm({
         defaultValues: {
             position_id: '1',
         },
         resolver: yupResolver(getSchema()),
+        mode: 'onChange'
     });
 
 
+    // Check position status
     if (positionLoading) return <Preloader />
     if (positionError) return `Error: ${error.message}`
 
 
+    // Radio Btns
     const positionRadio = data.positions.map(({ id, name }) => {
         return <RadioBtn key={id} id={id} register={register} label={name} />
     })
 
 
+    // Submit function
     const onSubmit = async (data) => {
         const { data: { token } } = await refetchToken()
         const formData = new FormData();
@@ -114,20 +138,18 @@ const Form = () => {
         }
 
         mutate({ formData, token })
-
-
+        reset()
     }
 
 
-    
 
 
-    
-    if (registerIsSuccess) {
-        debugger
-        return <SuccsessReg />
-    }
 
+    // If register is Success
+    if (registerIsSuccess) return <SuccsessReg />
+
+
+    // Form content with Preloader or Form
     const Content = registerIsLoading ? <Preloader /> : (
         <form
             onSubmit={handleSubmit(onSubmit)}
@@ -147,79 +169,18 @@ const Form = () => {
 
             <PhotoInput {...{ register, trigger, setError, clearErrors }} error={errors.photo} />
 
-            <button className="button">Submit</button>
+            <button disabled={isValid} className="button">Submit</button>
         </form>
     )
-    
 
 
+    // + Error message if exist
     return (
         <div className='form'>
             <h1>Working with POST request</h1>
-            {registerError && <div className="mt-3">{registerError.message}</div>}
+            {registerIsError && <div className="mt-3">{registerError.response.data.message}</div>}
             {Content}
         </div>
-    )
-}
-
-
-const SuccsessReg = () => {
-    return (
-        <div className="register-success mt-14">
-            <h1>User successfully registered</h1>
-            <img className='mx-auto mt-[50px]' src={success} alt="success" />
-        </div>
-    )
-}
-
-
-
-
-
-
-const Input = ({ trigger, register, error, name, placeholder, helper }) => {
-    return (
-        <div className={`form__input ${error && 'error'}`}>
-            <input placeholder={placeholder} {...register(name, {
-                onChange: (e) => {
-                    if (name === 'phone') e.target.value = e.target.value.replace(/[a-zA-Zа-яА-Я ]/g, '')
-                    if (error) trigger(name)
-                }
-            })} />
-            {error && <span className="input-error-label">{placeholder}</span>}
-            {error && <p className='error-text'>{error?.message}</p>}
-            {(helper && !error) && <p className='helper-text'>{helper}</p>}
-        </div>
-    )
-}
-const PhotoInput = ({ register, error }) => {
-
-    const [photoName, setPhotoName] = useState('')
-
-    const putPhoto = (file) => {
-
-        if (file === undefined) {
-            setPhotoName('')
-        } else {
-            setPhotoName(file.name)
-        }
-    }
-
-
-    return (
-        <div className={`form__input-file ${error && 'error'}`}>
-            <label className="form__file-label">
-                <span>Upload</span>
-                <input type="file" {...register('photo', {
-                    onChange: (e) => {
-                        putPhoto(e.target.files[0])
-                    },
-                })} />
-                <div className={photoName && 'active-name'}>{photoName ? photoName : 'Upload your photo'}</div>
-            </label>
-            {error && <p className='error-text'>{error?.message}</p>}
-        </div>
-
     )
 }
 

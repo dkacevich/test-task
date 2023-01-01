@@ -2,9 +2,9 @@ import Form from './components/Form/Form';
 import Header from './components/Header/Header'
 import Promo from './components/Promo/Promo';
 import Team from './components/Team/Team';
-import Preloader from './components/Preloader/Preloader';
 
 import './App.scss'
+import { Element } from 'react-scroll';
 
 
 
@@ -15,8 +15,12 @@ const App = () => {
             <Header />
             <div className="app-container">
                 <Promo />
-                <Team />
-                <Form/>
+                <Element name='team'>
+                    <Team />
+                </Element>
+                <Element name='form'>
+                    <Form />
+                </Element>
             </div>
         </>
     )
