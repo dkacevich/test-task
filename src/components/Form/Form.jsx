@@ -14,6 +14,7 @@ import Input from './Input';
 import SuccsessReg from './Success';
 
 import './Form.scss'
+import { DevTool } from '@hookform/devtools';
 
 
 // Validation schema
@@ -105,12 +106,12 @@ const Form = () => {
 
 
     // React Hook Form 
-    const { reset, isValid, register, handleSubmit, trigger, control, setError, clearErrors, formState: { errors } } = useForm({
+    const { reset, register, handleSubmit, trigger, control, setError, clearErrors, formState: { errors, isValid, isDirty } } = useForm({
         defaultValues: {
             position_id: '1',
         },
+        mode: 'onBlur   ',
         resolver: yupResolver(getSchema()),
-        mode: 'onChange'
     });
 
 
@@ -168,8 +169,8 @@ const Form = () => {
             </div>
 
             <PhotoInput {...{ register, trigger, setError, clearErrors }} error={errors.photo} />
-
-            <button disabled={isValid} className="button">Submit</button>
+            
+            <button disabled={!isValid} className="button">Submit</button>
         </form>
     )
 
@@ -180,6 +181,7 @@ const Form = () => {
             <h1>Working with POST request</h1>
             {registerIsError && <div className="mt-3">{registerError.response.data.message}</div>}
             {Content}
+            <DevTool control={control}/>
         </div>
     )
 }
