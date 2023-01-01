@@ -77,7 +77,13 @@ const Form = () => {
     const { data, isLoading: positionLoading, isError: positionError, error } = useQuery('positions', fetchPositions, { select: ({ data }) => data })
     const { refetch: refetchToken } = useQuery('token', getToken, { select: ({ data }) => data, enabled: false })
 
-    const registerQuery = useMutation({ mutationFn: ({ formData: data, token }) => registerUser({ data, token }) })
+    const {
+        isSuccess: registerIsSuccess,
+        isLoading: registerIsLoading,
+        isError: registerIsError,
+        error: registerError,
+        mutate
+    } = useMutation({ mutationFn: ({ formData: data, token }) => registerUser({ data, token }) })
 
     const { register, handleSubmit, trigger, control, setError, clearErrors, formState: { errors } } = useForm({
         defaultValues: {
@@ -107,13 +113,22 @@ const Form = () => {
             }
         }
 
-        registerQuery.mutate({ formData, token })
+        mutate({ formData, token })
 
 
     }
 
 
-    const Content = registerQuery.isLoading ? <Preloader /> : (
+    
+
+
+    
+    if (registerIsSuccess) {
+        debugger
+        return <SuccsessReg />
+    }
+
+    const Content = registerIsLoading ? <Preloader /> : (
         <form
             onSubmit={handleSubmit(onSubmit)}
             className='form__wrapper'
@@ -135,16 +150,14 @@ const Form = () => {
             <button className="button">Submit</button>
         </form>
     )
-    if (registerQuery.isError) return <div className="mt-3">{registerQuery.error}</div>
+    
 
-    if (registerQuery.isSuccess) return <SuccsessReg />
 
     return (
         <div className='form'>
             <h1>Working with POST request</h1>
-            {Error}
+            {registerError && <div className="mt-3">{registerError.message}</div>}
             {Content}
-            <DevTool control={control} />
         </div>
     )
 }

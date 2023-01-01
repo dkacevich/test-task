@@ -9,7 +9,6 @@ export const fetchUsers = async ({ pageParam = `${API_BASE}/users?page=1&count=6
 }
 
 export const registerUser = async ({ data, token }) => {
-        throw new Error('Custom error')
     const res = await axios.post(`${API_BASE}/users`, data, {
         headers: {
             token
