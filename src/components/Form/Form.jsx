@@ -161,7 +161,7 @@ const Form = () => {
 
             <PhotoInput {...{ register, trigger, setError, clearErrors }} error={errors.photo} />
             
-            <button disabled={!isValid} className="button">Submit</button>
+            <button disabled={!isValid && !isDirty} className="button">Submit</button>
         </form>
     )
 
