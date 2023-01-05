@@ -18,12 +18,8 @@ import './Form.scss'
 
 // Validation schema
 
-// There is only one issue
-// I can't correct check if photo has at least 70x70 px
-// Below is code where I tried
-
 const getSchema = () => yup.object({
-    
+
     name: yup.string()
         .required('This field is required')
         .min(2, 'Username should contain 2-60 characters')
@@ -40,27 +36,7 @@ const getSchema = () => yup.object({
     position_id: yup.number().required('This field is required'),
 
     photo: yup.mixed()
-        // .test('resolution', 'Photo must be at least 70x70 px', (file, context) => {
-        //     if (file && file[0]?.type === 'image/jpeg' && file[0]?.size <= 5 * 1024 * 1024) {
-        //         const getHeightAndWidthFromDataUrl = dataURL => new Promise(resolve => {
-        //             const img = new Image()
-        //             img.onload = () => {
-        //                 resolve({
-        //                     height: img.height,
-        //                     width: img.width
-        //                 })
-        //             }
-        //             img.src = dataURL
-        //         })
-        //         const fileAsDataURL = window.URL.createObjectURL(file[0])
-        //         getHeightAndWidthFromDataUrl(fileAsDataURL).then(({ width, height }) => {
-        //             if (width > 70 && height > 70) {
-        //                 return true
-        //             }
-        //             else return false
-        //         })
-        //     }
-        // })
+        
         .test('required', "You need to provide a file", (value) => {
             return value && value.length
         })
@@ -70,8 +46,24 @@ const getSchema = () => yup.object({
         .test("type", "We only support jpeg", function (value) {
             return value && value[0] && value[0].type === "image/jpeg";
         })
-
-
+        .test(
+            "dimension",
+            "We support at least 70x70 px dimension",
+            value => {
+                return value && value[0] && new Promise(resolve => {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(value[0]);
+                    reader.onload = function (value) {
+                        const img = new Image();
+                        img.src = value.target.result;
+                        img.onload = function () {
+                            const leastDimension = this.width > 70 && this.height > 70;
+                            resolve(leastDimension);
+                        };
+                    };
+                });
+            }
+        ),
 
 });
 
@@ -84,7 +76,7 @@ const Form = () => {
 
     // Position Query
     const { data, isLoading: positionLoading, isError: positionError, error } = useQuery('positions', fetchPositions, { select: ({ data }) => data })
-    
+
     // Token Query
     const { refetch: refetchToken } = useQuery('token', getToken, { select: ({ data }) => data, enabled: false })
 
