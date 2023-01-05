@@ -12,8 +12,8 @@ const Header = () => {
                     <a className='header__logo' href=""><img src={logo} alt="" /></a>
                 </div>
                 
-                <button className="button"><Link to='team' spy={true} smooth={true}>Users</Link></button>
-                <button className="button"><Link to='form' spy={true} smooth={true}>Sign up</Link></button>
+                <Link to='team' spy={true} smooth={true}><button className="button">Users</button></Link>
+                <Link to='form' spy={true} smooth={true}><button className="button">Sign up</button></Link>
             </header>
         </div>
     )

@@ -7,7 +7,6 @@
 #root {
 
   text-align: center;
-  overflow-x: hidden;
 
   .app-container {
     max-width: 1200px;
@@ -21,6 +20,7 @@
 }
 
 body {
+  overflow-x: hidden;
   font-family: 'Nunito', sans-serif;
   font-size: 16px;
   background: theme('colors.gray');

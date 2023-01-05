@@ -159,6 +159,10 @@
 }
 
 
+.form__select-label {
+    margin-bottom: 10px;
+}
+
 
 .radio-btn {
     display: flex;
@@ -166,6 +170,10 @@
     gap: 12px;
     position: relative;
     cursor: pointer;
+    
+    &:not(:last-child) {
+        margin-bottom: 7px;
+    }
 
     .radio-text {
         display: flex;
